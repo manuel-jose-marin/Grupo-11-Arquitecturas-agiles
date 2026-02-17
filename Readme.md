@@ -15,7 +15,7 @@ Este repositorio levanta en local la infraestructura del experimento:
 
 ---
 
-## Contenido rápido
+## Contenido
 
 - Requisitos
 - Estructura esperada
@@ -32,14 +32,12 @@ Este repositorio levanta en local la infraestructura del experimento:
 ### Windows (WSL2)
 1. Docker Desktop instalado.
 2. WSL2 activo + integración habilitada:
-   - Docker Desktop → **Settings** → **Resources** → **WSL integration** → habilitar tu distro.
+   - Docker Desktop → **Settings** → **Resources** → **WSL integration** → habilitar la distribución correspondiente.
 3. En WSL:
 ```bash
 docker version
 docker compose version
 ````
-
-> Recomendación: ejecuta el repo dentro del filesystem Linux (`~/...`) para mejor performance.
 
 ### macOS
 
@@ -101,13 +99,13 @@ docker network create santinet 2>/dev/null || true
 docker network ls | grep santinet
 ```
 
-> Si cambias el nombre de la red, actualiza los `docker-compose.yml` que apuntan a `santinet`.
+> Si se cambia el nombre de la red, se deben actualizar los `docker-compose.yml` que apuntan a `santinet`.
 
 ---
 
-## 3.1) Quickstart (2-5 min)
+## 3.1) Inicio rápido (2-5 min)
 
-Si quieres levantar todo rápido sin seguir cada subsección:
+Para levantar el entorno de forma rápida sin recorrer cada subsección:
 
 ```bash
 # desde la raíz del repo
@@ -202,7 +200,7 @@ docker ps | egrep "prometheus|grafana|alertmanager|loki|promtail|_exporter"
 
 **Validación rápida**
 
-* Prometheus targets: `http://localhost:9090/targets` (deberías ver exporters **UP**)
+* Prometheus targets: `http://localhost:9090/targets` (debe mostrar exporters en estado **UP**)
 * Grafana: ya provisionado con datasources Prometheus y Loki
 
 ---
@@ -222,7 +220,7 @@ docker ps | egrep "wiremock|toxiproxy|k6"
 * WireMock: `http://localhost:8089`
 * Toxiproxy API: `http://localhost:8474`
 
-> `k6` está definido con `profiles: ["manual"]`, por lo que normalmente se usa bajo demanda (ejecución manual) en lugar de quedar corriendo siempre.
+`k6` está definido con `profiles: ["manual"]`, por lo que su uso previsto es bajo demanda (ejecución manual), en lugar de ejecutarse de forma permanente.
 
 ---
 
@@ -264,7 +262,7 @@ curl -X POST http://localhost:8081/reservas -H "Content-Type: application/json" 
 curl http://localhost:8084/status
 ```
 
-**Qué validar en esta corrida**
+**Validaciones esperadas de la corrida**
 
 * `reservas` mantiene disponibilidad (202) en falla de proveedor.
 * `monitor` detecta `pagos` degradado dentro de la ventana de 20s.
@@ -399,7 +397,7 @@ docker network create santinet
 
 ### “port is already allocated”
 
-Cambia el puerto host (izquierda) en el `ports:`:
+Cambiar el puerto host (lado izquierdo) en `ports:`:
 
 * Postgres: `"5433:5432"` → `"5434:5432"`
 * Redis: `"6380:6379"` → `"6381:6379"`
