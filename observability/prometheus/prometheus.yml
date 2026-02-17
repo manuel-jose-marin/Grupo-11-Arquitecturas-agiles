@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "postgres_exporter"
+    static_configs:
+      - targets: ["postgres_exporter:9187"]
+
+  - job_name: "redis_exporter"
+    static_configs:
+      - targets: ["redis_exporter:9121"]
+
+  - job_name: "rabbitmq_exporter"
+    static_configs:
+      - targets: ["rabbitmq_exporter:9419"]
+
+  - job_name: "travelhub_services"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["reservas:8080", "pagos:8080", "monitor:8080", "validador:8080"]

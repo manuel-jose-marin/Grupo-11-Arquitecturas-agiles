@@ -1,0 +1,72 @@
+services:
+  reservas:
+    build: ./reservas
+    container_name: reservas
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      RABBIT_HOST: rabbitmq
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_DB: d2b
+      PG_USER: postgres
+      PG_PASS: admin
+    ports:
+      - "8081:8080"
+    networks: [santinet]
+
+  pagos:
+    build: ./pagos
+    container_name: pagos
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      RABBIT_HOST: rabbitmq
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+      REDIS_HOST: redis-server
+      REDIS_PORT: "6379"
+      REDIS_PASS: admin
+      PROVIDER_URL: http://wiremock:8080/pay
+      REQUEST_TIMEOUT_SECS: "2.0"
+    ports:
+      - "8082:8080"
+    networks: [santinet]
+
+  monitor:
+    build: ./monitor
+    container_name: monitor
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      RABBIT_HOST: rabbitmq
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+      PING_INTERVAL_SECS: "10"
+      DETECTION_WINDOW_SECS: "20"
+      TRACKED_SERVICES: reservas,pagos,validador
+    ports:
+      - "8083:8080"
+    networks: [santinet]
+
+  validador:
+    build: ./validador
+    container_name: validador
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      RABBIT_HOST: rabbitmq
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+      FAULTY_CALCULATOR: calc_c
+      FAULTY_DELTA: "5.0"
+    ports:
+      - "8084:8080"
+    networks: [santinet]
+
+networks:
+  santinet:
+    external: true
+    name: santinet

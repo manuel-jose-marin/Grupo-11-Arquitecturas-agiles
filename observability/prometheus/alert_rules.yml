@@ -1,0 +1,20 @@
+groups:
+  - name: availability_rules
+    rules:
+      - alert: ExporterDown
+        expr: up == 0
+        for: 20s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Target caído: {{ $labels.job }}"
+          description: "No hay scrape exitoso por 20s (>=2 intervalos de 10s)."
+
+      - alert: RabbitDLQGrowing
+        expr: increase(rabbitmq_queue_messages_ready{queue=~".*DLQ.*"}[1m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DLQ creciendo"
+          description: "Aumentan mensajes en DLQ (>10/min). Revisar poison messages o proveedor caído."

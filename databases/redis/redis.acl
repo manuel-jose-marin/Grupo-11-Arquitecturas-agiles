@@ -1,0 +1,2 @@
+user default off
+user postgres on >admin +@admin +CLIENT|SETINFO +SET +@write +@read ~*

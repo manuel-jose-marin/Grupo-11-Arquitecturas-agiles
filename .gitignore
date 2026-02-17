@@ -1,0 +1,55 @@
+# -----------------------------
+# Secrets / environment
+# -----------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+secret/
+credentials/
+credentials.json
+
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.venv/
+venv/
+env/
+
+# -----------------------------
+# Logs / runtime artifacts
+# -----------------------------
+*.log
+logs/
+tmp/
+temp/
+*.pid
+
+# -----------------------------
+# Docker / local overrides
+# -----------------------------
+docker-compose.override.yml
+
+# -----------------------------
+# IDE / OS noise
+# -----------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

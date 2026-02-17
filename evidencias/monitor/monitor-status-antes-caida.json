@@ -1,0 +1,19 @@
+{
+  "detectionWindowSecs": 20,
+  "pingIntervalSecs": 10,
+  "service": "monitor",
+  "services": {
+    "pagos": {
+      "healthy": true,
+      "lastPongLagSeconds": 1.348
+    },
+    "reservas": {
+      "healthy": true,
+      "lastPongLagSeconds": 4.798
+    },
+    "validador": {
+      "healthy": true,
+      "lastPongLagSeconds": 4.798
+    }
+  }
+}
