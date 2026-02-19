@@ -10,6 +10,15 @@ groups:
           summary: "Target caído: {{ $labels.job }}"
           description: "No hay scrape exitoso por 20s (>=2 intervalos de 10s)."
 
+      - alert: PaymentsDegradedByMonitor
+        expr: monitor_service_up{service="pagos"} == 0
+        for: 20s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pagos degradado (monitor)"
+          description: "El monitor no recibió pong de pagos dentro de la ventana de detección (20s)."
+
       - alert: RabbitDLQGrowing
         expr: increase(rabbitmq_queue_messages_ready{queue=~".*DLQ.*"}[1m]) > 10
         for: 1m
