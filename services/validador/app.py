@@ -18,6 +18,10 @@ RABBIT_PASS = os.getenv("RABBIT_PASS", "guest")
 FAULTY_CALCULATOR = os.getenv("FAULTY_CALCULATOR", "calc_c")
 FAULTY_DELTA = float(os.getenv("FAULTY_DELTA", "5.0"))
 
+# TTL controlado
+QUEUE_TTL_MS = int(os.getenv("QUEUE_TTL_MS", "30000"))  # 30s
+QUEUE_MAX_LEN = int(os.getenv("QUEUE_MAX_LEN", "10000"))
+
 app = Flask(__name__)
 
 validation_requests_total = Counter("validator_requests_total", "Validaciones procesadas")
@@ -52,7 +56,22 @@ def setup_topology(channel):
     channel.exchange_declare(exchange="control.ping", exchange_type="topic", durable=True)
     channel.exchange_declare(exchange="control.pong", exchange_type="topic", durable=True)
 
-    channel.queue_declare(queue="validator.requested", durable=True)
+    # DLQ central (la usamos también cuando hay caída de consumidor)
+    channel.exchange_declare(exchange="payments.dlq", exchange_type="direct", durable=True)
+    channel.queue_declare(queue="payments.dlq", durable=True)
+    channel.queue_bind(exchange="payments.dlq", queue="payments.dlq", routing_key="payment.failed")
+
+    # Cola de validación (si validador cae, TTL -> DLQ para backlog controlado)
+    channel.queue_declare(
+        queue="validator.requested",
+        durable=True,
+        arguments={
+            "x-message-ttl": QUEUE_TTL_MS,
+            "x-dead-letter-exchange": "payments.dlq",
+            "x-dead-letter-routing-key": "payment.failed",
+            "x-max-length": QUEUE_MAX_LEN,
+        },
+    )
     channel.queue_bind(
         exchange="booking.events",
         queue="validator.requested",
@@ -140,15 +159,34 @@ def on_validation_requested(ch, method, _properties, body):
     try:
         event = json.loads(body.decode("utf-8"))
         reservation_id = event.get("reservationId")
-        amount = float(event.get("amount", 0.0))
+        original_amount = float(event.get("amount", 0.0))
         correlation_id = event.get("correlationId", reservation_id)
         validation_requests_total.inc()
 
-        vote = execute_voting(amount)
+        vote = execute_voting(original_amount)
+
+        # 1) Evento que habilita el cobro real (pagos consume ESTE)
+        publish(
+            "booking.events",
+            "payment.validated",
+            {
+                "eventType": "PaymentValidated",
+                "reservationId": reservation_id,
+                "correlationId": correlation_id,
+                "amount": vote["majorityValue"],          # monto final por mayoría (2/3)
+                "originalAmount": original_amount,
+                "divergence": vote["divergence"],
+                "retiredCalculators": vote["retiredNow"],
+                "activeCalculators": vote["activeCalculators"],
+                "timestamp": now_iso(),
+            },
+        )
+
+        # 2) Telemetría/alertas: se mantiene el stream para la validación
         base_payload = {
             "reservationId": reservation_id,
             "correlationId": correlation_id,
-            "amount": amount,
+            "amount": original_amount,
             "majorityValue": vote["majorityValue"],
             "activeCalculators": vote["activeCalculators"],
             "timestamp": now_iso(),

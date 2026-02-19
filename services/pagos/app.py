@@ -23,9 +23,13 @@ REDIS_PASS = os.getenv("REDIS_PASS", "admin")
 PROVIDER_URL = os.getenv("PROVIDER_URL", "http://wiremock:8080/pay")
 REQUEST_TIMEOUT_SECS = float(os.getenv("REQUEST_TIMEOUT_SECS", "2.0"))
 
+# TTL controlado
+QUEUE_TTL_MS = int(os.getenv("QUEUE_TTL_MS", "30000"))  # 30s
+QUEUE_MAX_LEN = int(os.getenv("QUEUE_MAX_LEN", "10000"))
+
 app = Flask(__name__)
 
-payment_requested_total = Counter("payments_requested_total", "Solicitudes de pago recibidas")
+payment_requested_total = Counter("payments_requested_total", "Solicitudes de pago (validadas) recibidas")
 payment_success_total = Counter("payments_success_total", "Pagos exitosos")
 payment_failed_total = Counter("payments_failed_total", "Pagos fallidos")
 payment_dlq_total = Counter("payments_dlq_total", "Mensajes enviados a DLQ")
@@ -54,13 +58,27 @@ def setup_topology(channel):
     channel.exchange_declare(exchange="payments.events", exchange_type="topic", durable=True)
     channel.exchange_declare(exchange="control.ping", exchange_type="topic", durable=True)
     channel.exchange_declare(exchange="control.pong", exchange_type="topic", durable=True)
-    channel.exchange_declare(exchange="payments.dlq", exchange_type="direct", durable=True)
 
-    channel.queue_declare(queue="payments.requested", durable=True)
+    channel.exchange_declare(exchange="payments.dlq", exchange_type="direct", durable=True)
+    channel.queue_declare(queue="payments.dlq", durable=True)
+    channel.queue_bind(exchange="payments.dlq", queue="payments.dlq", routing_key="payment.failed")
+
+    # Cola principal: pagos SOLO procesa después de votación exchange (payment.validated)
+    # Si pagos cae, TTL -> DLQ para backlog controlado.
+    channel.queue_declare(
+        queue="payments.validated",
+        durable=True,
+        arguments={
+            "x-message-ttl": QUEUE_TTL_MS,
+            "x-dead-letter-exchange": "payments.dlq",
+            "x-dead-letter-routing-key": "payment.failed",
+            "x-max-length": QUEUE_MAX_LEN,
+        },
+    )
     channel.queue_bind(
         exchange="booking.events",
-        queue="payments.requested",
-        routing_key="payment.requested",
+        queue="payments.validated",
+        routing_key="payment.validated",
     )
 
     channel.queue_declare(queue="payments.monitor", durable=True)
@@ -69,9 +87,6 @@ def setup_topology(channel):
         queue="payments.monitor",
         routing_key="health.ping",
     )
-
-    channel.queue_declare(queue="payments.dlq", durable=True)
-    channel.queue_bind(exchange="payments.dlq", queue="payments.dlq", routing_key="payment.failed")
 
 
 def redis_client():
@@ -137,6 +152,7 @@ def process_payment(event):
     reservation_id = event["reservationId"]
     amount = float(event.get("amount", 0))
     correlation_id = event.get("correlationId", reservation_id)
+
     cache = redis_client()
     if not cache.set(name=f"payments:processed:{reservation_id}", value="1", nx=True, ex=3600):
         app.logger.info("Reserva %s ya procesada; idempotencia aplicada", reservation_id)
@@ -149,6 +165,7 @@ def process_payment(event):
             "eventType": "PaymentProcessingStarted",
             "reservationId": reservation_id,
             "correlationId": correlation_id,
+            "amount": amount,
             "timestamp": now_iso(),
         },
     )
@@ -187,7 +204,7 @@ def process_payment(event):
     payment_dlq_total.inc()
 
 
-def on_payment_requested(ch, method, _properties, body):
+def on_payment_validated(ch, method, _properties, body):
     try:
         event = json.loads(body.decode("utf-8"))
         payment_requested_total.inc()
@@ -218,7 +235,7 @@ def consumer_worker():
             channel = connection.channel()
             setup_topology(channel)
             channel.basic_qos(prefetch_count=10)
-            channel.basic_consume(queue="payments.requested", on_message_callback=on_payment_requested)
+            channel.basic_consume(queue="payments.validated", on_message_callback=on_payment_validated)
             channel.basic_consume(queue="payments.monitor", on_message_callback=on_health_ping)
             app.logger.info("Consumidor RabbitMQ de pagos activo")
             channel.start_consuming()
