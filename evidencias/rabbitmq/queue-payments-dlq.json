@@ -1,1 +1,67 @@
-{"consumer_details":[],"arguments":{},"auto_delete":false,"consumer_capacity":0,"consumer_utilisation":0,"consumers":0,"deliveries":[],"durable":true,"effective_policy_definition":{},"exclusive":false,"exclusive_consumer_tag":null,"garbage_collection":{"fullsweep_after":65535,"max_heap_size":0,"min_bin_vheap_size":46422,"min_heap_size":233,"minor_gcs":9},"head_message_timestamp":null,"idle_since":"2026-02-17T14:58:12.445+00:00","incoming":[],"memory":12512,"message_bytes":4767,"message_bytes_paged_out":0,"message_bytes_persistent":4767,"message_bytes_ram":227,"message_bytes_ready":4767,"message_bytes_unacknowledged":0,"message_stats":{"publish":21,"publish_details":{"rate":0.0}},"messages":21,"messages_details":{"rate":0.0},"messages_paged_out":0,"messages_persistent":21,"messages_ram":1,"messages_ready":21,"messages_ready_details":{"rate":0.0},"messages_ready_ram":1,"messages_unacknowledged":0,"messages_unacknowledged_details":{"rate":0.0},"messages_unacknowledged_ram":0,"name":"payments.dlq","node":"rabbit@9f49d2e4f62c","operator_policy":null,"policy":null,"recoverable_slaves":null,"reductions":52236,"reductions_details":{"rate":0.0},"single_active_consumer_tag":null,"state":"running","storage_version":1,"type":"classic","vhost":"/"}
+{
+    "consumer_details": [],
+    "arguments": {},
+    "auto_delete": false,
+    "consumer_capacity": 0,
+    "consumer_utilisation": 0,
+    "consumers": 0,
+    "deliveries": [],
+    "durable": true,
+    "effective_policy_definition": {},
+    "exclusive": false,
+    "exclusive_consumer_tag": null,
+    "garbage_collection": {
+        "fullsweep_after": 65535,
+        "max_heap_size": 0,
+        "min_bin_vheap_size": 46422,
+        "min_heap_size": 233,
+        "minor_gcs": 3
+    },
+    "head_message_timestamp": null,
+    "idle_since": "2026-02-19T15:43:33.504+00:00",
+    "incoming": [],
+    "memory": 792864,
+    "message_bytes": 326383,
+    "message_bytes_paged_out": 0,
+    "message_bytes_persistent": 326383,
+    "message_bytes_ram": 182266,
+    "message_bytes_ready": 326383,
+    "message_bytes_unacknowledged": 0,
+    "message_stats": {
+        "publish": 15,
+        "publish_details": {
+            "rate": 0.0
+        }
+    },
+    "messages": 1004,
+    "messages_details": {
+        "rate": 0.0
+    },
+    "messages_paged_out": 0,
+    "messages_persistent": 1004,
+    "messages_ram": 560,
+    "messages_ready": 1004,
+    "messages_ready_details": {
+        "rate": 0.0
+    },
+    "messages_ready_ram": 560,
+    "messages_unacknowledged": 0,
+    "messages_unacknowledged_details": {
+        "rate": 0.0
+    },
+    "messages_unacknowledged_ram": 0,
+    "name": "payments.dlq",
+    "node": "rabbit@f3f51fdabbbe",
+    "operator_policy": null,
+    "policy": null,
+    "recoverable_slaves": null,
+    "reductions": 449970,
+    "reductions_details": {
+        "rate": 0.0
+    },
+    "single_active_consumer_tag": null,
+    "state": "running",
+    "storage_version": 1,
+    "type": "classic",
+    "vhost": "/"
+}

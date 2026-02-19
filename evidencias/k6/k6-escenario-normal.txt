@@ -12,117 +12,27 @@
      scenarios: (100.00%) 1 scenario, 10 max VUs, 1m0s max duration (incl. graceful stop):
               * default: 10 looping VUs for 30s (gracefulStop: 30s)
 
-
-running (0m01.0s), 10/10 VUs, 26 complete and 0 interrupted iterations
-default   [   3% ] 10 VUs  01.0s/30s
-
-running (0m02.0s), 10/10 VUs, 60 complete and 0 interrupted iterations
-default   [   7% ] 10 VUs  02.0s/30s
-
-running (0m03.0s), 10/10 VUs, 90 complete and 0 interrupted iterations
-default   [  10% ] 10 VUs  03.0s/30s
-
-running (0m04.0s), 10/10 VUs, 120 complete and 0 interrupted iterations
-default   [  13% ] 10 VUs  04.0s/30s
-
-running (0m05.0s), 10/10 VUs, 143 complete and 0 interrupted iterations
-default   [  17% ] 10 VUs  05.0s/30s
-
-running (0m06.0s), 10/10 VUs, 179 complete and 0 interrupted iterations
-default   [  20% ] 10 VUs  06.0s/30s
-
-running (0m07.0s), 10/10 VUs, 210 complete and 0 interrupted iterations
-default   [  23% ] 10 VUs  07.0s/30s
-
-running (0m08.0s), 10/10 VUs, 240 complete and 0 interrupted iterations
-default   [  27% ] 10 VUs  08.0s/30s
-
-running (0m09.0s), 10/10 VUs, 270 complete and 0 interrupted iterations
-default   [  30% ] 10 VUs  09.0s/30s
-
-running (0m10.0s), 10/10 VUs, 300 complete and 0 interrupted iterations
-default   [  33% ] 10 VUs  10.0s/30s
-
-running (0m11.0s), 10/10 VUs, 334 complete and 0 interrupted iterations
-default   [  37% ] 10 VUs  11.0s/30s
-
-running (0m12.0s), 10/10 VUs, 366 complete and 0 interrupted iterations
-default   [  40% ] 10 VUs  12.0s/30s
-
-running (0m13.0s), 10/10 VUs, 390 complete and 0 interrupted iterations
-default   [  43% ] 10 VUs  13.0s/30s
-
-running (0m14.0s), 10/10 VUs, 414 complete and 0 interrupted iterations
-default   [  47% ] 10 VUs  14.0s/30s
-
-running (0m15.0s), 10/10 VUs, 438 complete and 0 interrupted iterations
-default   [  50% ] 10 VUs  15.0s/30s
-
-running (0m16.0s), 10/10 VUs, 468 complete and 0 interrupted iterations
-default   [  53% ] 10 VUs  16.0s/30s
-
-running (0m17.0s), 10/10 VUs, 490 complete and 0 interrupted iterations
-default   [  57% ] 10 VUs  17.0s/30s
-
-running (0m18.0s), 10/10 VUs, 520 complete and 0 interrupted iterations
-default   [  60% ] 10 VUs  18.0s/30s
-
-running (0m19.0s), 10/10 VUs, 550 complete and 0 interrupted iterations
-default   [  63% ] 10 VUs  19.0s/30s
-
-running (0m20.0s), 10/10 VUs, 585 complete and 0 interrupted iterations
-default   [  67% ] 10 VUs  20.0s/30s
-
-running (0m21.0s), 10/10 VUs, 620 complete and 0 interrupted iterations
-default   [  70% ] 10 VUs  21.0s/30s
-
-running (0m22.0s), 10/10 VUs, 650 complete and 0 interrupted iterations
-default   [  73% ] 10 VUs  22.0s/30s
-
-running (0m23.0s), 10/10 VUs, 680 complete and 0 interrupted iterations
-default   [  77% ] 10 VUs  23.0s/30s
-
-running (0m24.0s), 10/10 VUs, 710 complete and 0 interrupted iterations
-default   [  80% ] 10 VUs  24.0s/30s
-
-running (0m25.0s), 10/10 VUs, 731 complete and 0 interrupted iterations
-default   [  83% ] 10 VUs  25.0s/30s
-
-running (0m26.0s), 10/10 VUs, 761 complete and 0 interrupted iterations
-default   [  87% ] 10 VUs  26.0s/30s
-
-running (0m27.0s), 10/10 VUs, 791 complete and 0 interrupted iterations
-default   [  90% ] 10 VUs  27.0s/30s
-
-running (0m28.0s), 10/10 VUs, 821 complete and 0 interrupted iterations
-default   [  93% ] 10 VUs  28.0s/30s
-
-running (0m29.0s), 10/10 VUs, 855 complete and 0 interrupted iterations
-default   [  97% ] 10 VUs  29.0s/30s
-
-running (0m30.0s), 10/10 VUs, 891 complete and 0 interrupted iterations
-default   [ 100% ] 10 VUs  30s
-
      ✓ status is 202
 
-     checks.........................: 100.00% ✓ 901       ✗ 0   
-     data_received..................: 281 kB  9.2 kB/s
-     data_sent......................: 160 kB  5.2 kB/s
-     http_req_blocked...............: avg=866.95µs min=114.48µs med=330.49µs max=115.37ms p(90)=1.1ms    p(95)=2.16ms  
-     http_req_connecting............: avg=666.63µs min=83.39µs  med=238.71µs max=115.31ms p(90)=790.51µs p(95)=1.34ms  
-   ✓ http_req_duration..............: avg=34.68ms  min=7.08ms   med=14.36ms  max=495.33ms p(90)=58.69ms  p(95)=146.87ms
-       { expected_response:true }...: avg=34.68ms  min=7.08ms   med=14.36ms  max=495.33ms p(90)=58.69ms  p(95)=146.87ms
-   ✓ http_req_failed................: 0.00%   ✓ 0         ✗ 901 
-     http_req_receiving.............: avg=912.33µs min=50.65µs  med=188.68µs max=179.37ms p(90)=1.24ms   p(95)=2.37ms  
-     http_req_sending...............: avg=133.77µs min=17µs     med=52.59µs  max=15.61ms  p(90)=147.78µs p(95)=270.37µs
-     http_req_tls_handshaking.......: avg=0s       min=0s       med=0s       max=0s       p(90)=0s       p(95)=0s      
-     http_req_waiting...............: avg=33.63ms  min=6.84ms   med=13.59ms  max=494.99ms p(90)=58.09ms  p(95)=143.46ms
-     http_reqs......................: 901     29.479232/s
-     iteration_duration.............: avg=338.59ms min=307.98ms med=316.34ms max=796.58ms p(90)=374.18ms p(95)=459.22ms
-     iterations.....................: 901     29.479232/s
-     vus............................: 10      min=10      max=10
+     checks.........................: 100.00% ✓ 761       ✗ 0   
+     data_received..................: 237 kB  7.8 kB/s
+     data_sent......................: 135 kB  4.4 kB/s
+     http_req_blocked...............: avg=2.89ms   min=142.63µs   med=506.59µs max=232.55ms p(90)=3.85ms   p(95)=8.23ms  
+     http_req_connecting............: avg=2.45ms   min=58.66µs    med=342.52µs max=218.81ms p(90)=3.05ms   p(95)=6.74ms  
+   ✓ http_req_duration..............: avg=81.14ms  min=8.61ms     med=25.79ms  max=1.42s    p(90)=146.86ms p(95)=398.87ms
+       { expected_response:true }...: avg=81.14ms  min=8.61ms     med=25.79ms  max=1.42s    p(90)=146.86ms p(95)=398.87ms
+   ✓ http_req_failed................: 0.00%   ✓ 0         ✗ 761 
+     http_req_receiving.............: avg=2.1ms    min=-9513172ns med=231.1µs  max=237.17ms p(90)=2.25ms   p(95)=4.27ms  
+     http_req_sending...............: avg=326.35µs min=17.31µs    med=80.42µs  max=25.26ms  p(90)=314.31µs p(95)=760.92µs
+     http_req_tls_handshaking.......: avg=0s       min=0s         med=0s       max=0s       p(90)=0s       p(95)=0s      
+     http_req_waiting...............: avg=78.71ms  min=8.39ms     med=24.72ms  max=1.42s    p(90)=137.06ms p(95)=398.68ms
+     http_reqs......................: 761     24.995648/s
+     iteration_duration.............: avg=396.52ms min=309.75ms   med=330.55ms max=1.73s    p(90)=512.95ms p(95)=782.31ms
+     iterations.....................: 761     24.995648/s
+     vus............................: 9       min=9       max=10
      vus_max........................: 10      min=10      max=10
 
 
-running (0m30.6s), 00/10 VUs, 901 complete and 0 interrupted iterations
+running (0m30.4s), 00/10 VUs, 761 complete and 0 interrupted iterations
 default ✓ [ 100% ] 10 VUs  30s
+

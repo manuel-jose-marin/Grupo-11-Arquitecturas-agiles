@@ -1,1 +1,4 @@
-{"service":"reservas","status":"ok"}
+{
+    "service": "reservas",
+    "status": "ok"
+}

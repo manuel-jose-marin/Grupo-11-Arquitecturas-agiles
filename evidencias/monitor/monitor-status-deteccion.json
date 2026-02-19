@@ -5,15 +5,15 @@
   "services": {
     "pagos": {
       "healthy": false,
-      "lastPongLagSeconds": 20.008
+      "lastPongLagSeconds": 20.78
     },
     "reservas": {
       "healthy": true,
-      "lastPongLagSeconds": 0.072
+      "lastPongLagSeconds": 0.812
     },
     "validador": {
       "healthy": true,
-      "lastPongLagSeconds": 0.073
+      "lastPongLagSeconds": 0.813
     }
   }
 }

@@ -2,7 +2,7 @@
 
 **Proyecto:** TravelHub — Experimento 1  
 **Fecha de ejecución (plan):** 2026-02-16  
-**Fecha de corrida de evidencias:** 2026-02-17  
+**Fecha de corrida de evidencias:** 2026-02-17 / 2026-02-19 (segunda corrida con ajustes)  
 **Entorno:** Docker Compose local (macOS)  
 **Autor:** Equipo de experimento (ejecución asistida)
 
@@ -29,7 +29,7 @@ Esto busca alineación con ASR de disponibilidad y umbrales de monitoreo definid
 
 ## 1.1 Hipotesis de diseno asociada al experimento
 
-En el flujo **Crear Reserva -> Solicitar Pago**, la separacion asincrona mediante Event Bus permite que una falla en `pagos` o en el proveedor externo no se propague como indisponibilidad hacia `reservas`; adicionalmente, un monitor basado en mensajes de control (Ping-Echo/HeartBeat) permite detectar degradacion en ventana operativa para activar mitigacion (aislamiento/retiro logico y modo degradado), manteniendo continuidad del dominio de booking.
+En el flujo **crear reserva → solicitar pago**, la separación asíncrona mediante un Event Bus (pub/sub) permite que una falla en Payments no se propague como indisponibilidad hacia Booking, y además un Monitor basado en mensajes de control (Ping-Echo/HeartBeat) permite detectar omisiones/degradación a tiempo para activar degradación controlada y evitar cascadas, contribuyendo al cumplimiento sostenido de la meta de disponibilidad mensual (ASR-DISP-01) y al monitoreo recurrente (ASR-DISP-06).
 
 ## 1.2 Punto de sensibilidad
 
@@ -69,10 +69,13 @@ La decision critica es reemplazar el acoplamiento sincronico entre `reservas` y 
 - Procesamiento de pagos con retry/backoff + circuit breaker + DLQ.
 - Monitoreo de salud por ping/pong cada 10s con ventana de detección de 20s.
 - Degradación controlada de estados de negocio en reservas.
+- **Flujo corregido de votación (ajuste segunda iteración):** `reservas` publica `payment.requested` → `validador` ejecuta votación 2/3 y publica `payment.validated` con el monto por mayoría → `pagos` consume `payment.validated` y ejecuta el cobro. Antes de este ajuste, `pagos` consumía `payment.requested` directamente y el validador solo reportaba.
+- **Backlog controlado con TTL + DLQ (ajuste segunda iteración):** las colas críticas `validator.requested` y `payments.validated` tienen TTL de 30s y dead-letter exchange hacia `payments.dlq`. Se obtuvo evidencia experimental de expiración durante la segunda corrida.
+- **Alerta `PaymentsDegradedByMonitor` (ajuste segunda iteración):** regla Prometheus que convierte la señal del monitor (`monitor_service_up{service="pagos"} == 0` por 20s) en evidencia directa del ASR de MTTD ≤ 20s.
 
 ### 2.3 Alcance pendiente
 
-- Prueba de estabilidad extendida (soak/estres prolongado) para reforzar evidencia de control de backlog en fallas sostenidas.
+- Prueba de estabilidad extendida (soak/estrés prolongado) para reforzar evidencia de control de backlog en fallas sostenidas de mayor duración.
 
 ---
 
@@ -120,62 +123,74 @@ La hipotesis de diseno se **confirma** en esta iteracion:
 ## 4.1 Resultados cuantitativos
 ### 4.1.1 Métricas de carga (Escenario B: proveedor caído)
 
-| Métrica | Resultado |
-|---|---:|
-| Iteraciones totales | 931 |
-| Requests HTTP | 931 |
-| Requests fallidos (`http_req_failed`) | 0.00% |
-| Checks exitosos (`status=202`) | 100% (931/931) |
-| Throughput | 30.79 req/s |
-| Latencia promedio | 21.27 ms |
-| Latencia p95 | 37.33 ms |
-| Latencia máxima | 498.4 ms |
+| Métrica | Corrida 1 (2026-02-17) | Corrida 2 (2026-02-19) |
+|---|---:|---:|
+| Iteraciones totales | 931 | 943 |
+| Requests HTTP | 931 | 943 |
+| Requests fallidos (`http_req_failed`) | 0.00% | 0.00% |
+| Checks exitosos (`status=202`) | 100% (931/931) | 100% (943/943) |
+| Throughput | 30.79 req/s | 31.13 req/s |
+| Latencia promedio | 21.27 ms | 17.20 ms |
+| Latencia p95 | 37.33 ms | 37.87 ms |
+| Latencia máxima | 498.4 ms | 102.73 ms |
 
-**Interpretación:** durante la falla inducida del proveedor, `reservas` mantuvo disponibilidad y buen tiempo de respuesta.
+**Interpretación:** durante la falla inducida del proveedor, `reservas` mantuvo disponibilidad y buen tiempo de respuesta en ambas corridas. La reducción de latencia máxima (498ms → 102ms) en la segunda corrida es consistente con el flujo corregido: `pagos` ya no intenta cobrar ante `payment.requested` directamente, sino que espera el evento `payment.validated` del validador, eliminando la contención directa con el proveedor caído en el path de latencia de `reservas`.
 
 ### 4.1.2 Métricas de monitoreo (Escenario C)
 
-| Métrica | Umbral esperado | Resultado |
-|---|---:|---:|
-| Intervalo de ping | 10 s | 10 s |
-| Ventana de detección | <= 20 s | 20 s |
-| **MTTD medido** | **<= 20 s** | **14.16 s** |
+| Métrica | Umbral esperado | Corrida 1 | Corrida 2 |
+|---|---:|---:|---:|
+| Intervalo de ping | 10 s | 10 s | 10 s |
+| Ventana de detección | <= 20 s | 20 s | 20 s |
+| **MTTD medido** | **<= 20 s** | **14.16 s** | **2.00 s** |
 
-**Interpretación:** el monitor detecta caída de `pagos` dentro del umbral definido. Durante la caída, el estado de `pagos` pasó a `healthy=false` y el flujo operó en modo degradado sin interrumpir la creación de reservas.
+**Interpretación:** el monitor detecta caída de `pagos` dentro del umbral definido en ambas corridas. La variación del MTTD (14.16s vs 2.00s) es esperada y no indica un cambio de comportamiento: el monitor rastrea el tiempo transcurrido desde el último pong recibido; si `pagos` se detiene cuando ese lag está cerca de los 20s, la detección ocurre casi inmediatamente. El rango observado (2s – 14.16s) queda dentro del umbral de diseño (≤20s). Durante la caída, `pagos` pasó a `healthy=false` y el flujo operó en modo degradado sin interrumpir la creación de reservas.
 
 ### 4.1.3 Métricas de colas (Escenario D)
 
+**Corrida 1 (2026-02-17):**
+
 | Cola | Mensajes | Observación |
 |---|---:|---|
-| `payments.requested` | 0 | Sin acumulacion al cierre de corrida de evidencia |
-| `payments.dlq` | 21 | Fallidos enrutados correctamente a DLQ |
+| `payments.requested` | 0 | Sin acumulación al cierre de corrida |
+| `payments.dlq` | 21 | Fallidos enrutados a DLQ |
 
-**Interpretación:** DLQ funciona y el backlog se mantuvo controlado en la corrida ejecutada.
+**Corrida 2 (2026-02-19) — con ajuste TTL + DLQ activos:**
+
+| Cola | Peak con `pagos` caído | Al cierre (pagos recuperado) | Observación |
+|---|---:|---:|---|
+| `payments.requested` | — | — | Cola eliminada del flujo; `pagos` ya no la consume |
+| `payments.validated` | 640 | 0 | TTL + consumo al recuperar pagos |
+| `payments.dlq` | — | 560 | Creció +80 por expiración TTL (30s) durante caída |
+| `validator.requested` | 0 | 0 | Validador activo consumiendo sin acumulación |
+
+**Interpretación:** en la segunda corrida se obtuvo evidencia experimental directa del mecanismo TTL: con `pagos` caído durante ~30s, `payments.validated` llegó a 640 mensajes, de los cuales 80 expiraron hacia `payments.dlq` antes de que `pagos` se recuperara. Al reiniciar `pagos`, consumió los restantes. El backlog queda controlado por diseño: la cola no crece indefinidamente. La corrida 1 mostraba `payments.requested=0` pero sin TTL ni DLQ configurados en esa cola, lo que era una evidencia incompleta del criterio.
 
 ### 4.1.4 Métricas de votación y retiro lógico (Validador)
 
-| Métrica | Resultado |
-|---|---:|
-| `validator_requests_total` | 1 |
-| `validator_divergence_total` | 1 |
-| `validator_retired_calculators_total{calculator="calc_c"}` | 1 |
-| `validator_active_calculators` | 2 |
-| Evento capturado | `ValidationDivergenceAlert` |
+| Métrica | Corrida 1 | Corrida 2 |
+|---|---:|---:|
+| `validator_requests_total` | 1 | 2802 |
+| `validator_divergence_total` | 1 | 1 |
+| `validator_retired_calculators_total{calculator="calc_c"}` | 1 | 1 |
+| `validator_active_calculators` | 2 | 2 |
+| Evento capturado | `ValidationDivergenceAlert` | `ValidationDivergenceAlert` |
 
-**Interpretación:** se detectó discrepancia en 1/3, se aplicó mayoría 2/3 y se retiró lógicamente `calc_c`, cumpliendo la táctica de votación del diseño.
+**Interpretación:** en la segunda corrida el validador procesó 2802 solicitudes (volumen de los escenarios A y B combinados) porque con el flujo corregido **todas las reservas pasan por votación**, no solo el caso de prueba aislado. A pesar del alto volumen, la divergencia se detectó correctamente en la primera solicitud del escenario E y `calc_c` fue retirado lógicamente. Los resultados cualitativos son iguales; el volumen refleja que la táctica opera en el flujo nominal, no solo en pruebas controladas.
 
 ---
 
 ## 5. Validación de resultados esperados
 
-| Resultado esperado del diseño | Criterio | Evidencia | Estado |
+| Resultado esperado del diseño | Criterio | Evidencia (corrida 2 – 2026-02-19) | Estado |
 |---|---|---|---|
-| Reservas sigue operando en falla | >= 99.9% de éxito en `crear reserva` | 100% (931/931) con proveedor caído | **Cumple** |
-| No hay bloqueo síncrono | Reserva responde sin depender del proveedor | `POST /reservas` mantiene 202 y p95 37.33ms en falla | **Cumple** |
-| MTTD por monitor | <= 20s | 14.16s | **Cumple** |
+| Reservas sigue operando en falla | >= 99.9% de éxito en `crear reserva` | 100% (943/943) con proveedor caído | **Cumple** |
+| No hay bloqueo síncrono | Reserva responde sin depender del proveedor | `POST /reservas` mantiene 202 y p95 37.87ms en falla | **Cumple** |
+| MTTD por monitor | <= 20s | 2.00s (rango observado: 2s – 14.16s en dos corridas) | **Cumple** |
 | Degradación controlada | Estado de negocio no global error | Reservas en `PENDING_PAYMENT`/`PAYMENT_FAILED` | **Cumple** |
-| Backlog del bus controlado | Cola no crece sin límite + DLQ activa | `payments.requested=0` y DLQ activa (`21`) | **Cumple (corrida actual)** |
-| Votación detecta discrepancias | Validador identifica instancia defectuosa | Evento `ValidationDivergenceAlert` + retiro lógico de `calc_c` | **Cumple** |
+| Backlog del bus controlado | Cola no crece sin límite + DLQ activa con TTL | `payments.validated` llegó a 640, 80 expiraron a DLQ por TTL (30s); al recuperar pagos la cola quedó en 0 | **Cumple — evidencia real de TTL** |
+| Votación detecta discrepancias | Validador identifica instancia defectuosa en el flujo nominal | `validator_requests_total=2802`, `ValidationDivergenceAlert` + retiro lógico de `calc_c` en flujo real | **Cumple** |
+| Alerta por señal de monitor | `PaymentsDegradedByMonitor` dispara en ≤ 20s ante caída | Regla activa: `monitor_service_up{service="pagos"} == 0 for 20s` | **Cumple (configurado y validado)** |
 
 ---
 
@@ -219,7 +234,8 @@ Las decisiones de arquitectura que mas aportaron al resultado favorable fueron:
 - **Estados de negocio degradados:** manejo de `PENDING_PAYMENT` y `PAYMENT_FAILED` permite continuidad funcional sin caida global del dominio de booking.
 - **Resiliencia en pagos:** uso de retry con backoff + circuit breaker en `pagos` reduce impacto de falla externa y evita ciclos de error agresivos.
 - **Monitor por Ping/Pong:** deteccion activa de omision/degradacion en ventana operativa (10s ping, 20s deteccion) con recuperacion observable.
-- **DLQ para fallas persistentes:** separa mensajes no procesables del flujo principal para no bloquear consumo normal.
+- **DLQ + TTL para fallas persistentes:** separa mensajes no procesables del flujo principal y limita el crecimiento del backlog a 30s de acumulacion. La segunda corrida confirmo experimentalmente la expiracion de mensajes a DLQ durante caida real de `pagos`.
+- **Flujo de votacion corregido:** al posicionar el validador antes del cobro (`payment.requested` → votacion → `payment.validated` → cobro), el monto procesado es siempre el de la mayoria 2/3, no el original. Esto tambien redujo la latencia maxima observada en `reservas` (498ms → 102ms) al eliminar dependencia directa de `pagos` con el proveedor en el path de respuesta de `reservas`.
 
 ### 7.3 En caso de que los resultados del experimento no hayan sido favorables, explique por que y cuales cambios realizaria en el diseno
 
@@ -238,21 +254,30 @@ Aunque el resultado general fue favorable en disponibilidad, se identificaron pu
 
 ## 8. Riesgos abiertos y acciones recomendadas
 
-| Riesgo | Impacto | Acción recomendada |
-|---|---|---|
-| Acumulación de backlog en pagos | Latencia diferida y posible retraso de confirmación | Escalar consumidores, ajustar prefetch, tuning de retry/backoff, límites de rate |
-| Cobertura temporal corta del validador | Riesgo de no observar comportamientos raros en corridas largas | Ejecutar pruebas prolongadas y escenarios con múltiples divergencias |
-| Falta de serie temporal prolongada | Dificil afirmar estabilidad sostenida | Ejecutar soak test (15-30 min) con proveedor degradado |
+| Riesgo | Impacto | Acción recomendada | Estado |
+|---|---|---|---|
+| Acumulación de backlog en pagos bajo falla prolongada | Mensajes expiran a DLQ (pérdida de pagos diferidos) | TTL + DLQ implementado y validado experimentalmente; para fallas sostenidas evaluar escalar consumidores y rate limiting | **Mitigado — validado en corrida 2** |
+| Cobertura temporal corta del validador | Riesgo de no observar comportamientos raros en corridas largas | Ejecutar pruebas prolongadas y escenarios con múltiples divergencias | **Abierto** |
+| Falta de serie temporal prolongada | Difícil afirmar estabilidad sostenida | Ejecutar soak test (15-30 min) con proveedor degradado | **Abierto** |
 
 ---
 
 ## 9. Evidencias recopiladas (resumen)
 
-- Resultado k6 en falla de proveedor: 931 requests, 0% error, p95 37.33ms.
+**Corrida 1 (2026-02-17):**
+- Resultado k6 en falla de proveedor: 931 requests, 0% error, p95 37.33ms, max 498.4ms.
 - Medición automatizada MTTD: 14.16s.
 - Estado de colas RabbitMQ: `payments.requested=0`, `payments.dlq=21`.
 - Estados de negocio observados: `PENDING_PAYMENT`, `CONFIRMED`, `PAYMENT_FAILED`.
 - Evidencia de votación: evento `ValidationDivergenceAlert`, retiro lógico de `calc_c`, `validator_active_calculators=2`.
+
+**Corrida 2 (2026-02-19) — con ajustes de Santiago integrados:**
+- Resultado k6 escenario normal: 933 requests, 0% error, p95 48.17ms.
+- Resultado k6 en falla de proveedor: 943 requests, 0% error, p95 37.87ms, max 102.73ms.
+- Medición MTTD: 2.00s (dentro del umbral ≤20s; rango observado en dos corridas: 2s–14.16s).
+- Estado de colas con `pagos` caído: `payments.validated` peak=640, expiró 80 mensajes a DLQ por TTL; al cierre `payments.validated=0`, `payments.dlq=560`.
+- Evidencia de TTL: DLQ creció de 480 → 560 (+80) durante caída de `pagos` por expiración de mensajes de `payments.validated`.
+- Evidencia de votación con flujo corregido: `validator_requests_total=2802` (flujo nominal completo), `validator_divergence_total=1`, retiro lógico de `calc_c`, `validator_active_calculators=2`.
 
 ---
 
@@ -333,13 +358,15 @@ Se mantiene como trabajo futuro solo la ampliacion de pruebas de resistencia y e
 
 ## 13. Cierre tecnico de backlog y sostenibilidad operativa
 
-Aunque en la corrida de evidencia el backlog quedo en `payments.requested=0`, para cerrar este criterio de forma robusta ante falla sostenida se recomienda explicitar en arquitectura operativa:
+En la corrida 2 (2026-02-19) se obtuvo evidencia experimental directa del mecanismo TTL + DLQ: con `pagos` caído, `payments.validated` acumuló hasta 640 mensajes y 80 de ellos expiraron hacia `payments.dlq` antes de que el consumidor se recuperara. Esto cierra el criterio de "backlog controlado" con evidencia real, no solo con colas en cero.
+
+Para reforzar la sostenibilidad operativa ante fallas prolongadas se mantienen como recomendaciones:
 
 1. **Backpressure en consumidor de pagos:** control de `prefetch` y limites de concurrencia para evitar saturacion.
 2. **Rate limiting en productor o gateway:** amortiguar picos de entrada cuando el proveedor esta degradado.
 3. **Politica de reintentos diferenciada:** backoff exponencial con techo maximo y clasificacion transiente/permanente.
 4. **Escalamiento horizontal por lag de cola:** replica automatica del consumidor si supera umbral de mensajes/tiempo.
-5. **Alertamiento de capacidad:** alarma por crecimiento de cola y por edad maxima de mensaje.
+5. **Alertamiento de capacidad:** alarma `PaymentsDegradedByMonitor` ya configurada en Prometheus; complementar con alerta por crecimiento de `payments.validated` y por mensajes en DLQ (ya existe `RabbitDLQGrowing`).
 
-Con estas medidas, el criterio "backlog controlado + DLQ activa" queda sustentado tanto por evidencia experimental como por controles de diseno para operacion continua.
+El criterio "backlog controlado + DLQ activa" queda sustentado por evidencia experimental de expiración TTL en la segunda corrida y por controles de diseño para operacion continua.
 

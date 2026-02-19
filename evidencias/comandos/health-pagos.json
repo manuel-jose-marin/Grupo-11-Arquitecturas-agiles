@@ -1,1 +1,4 @@
-{"service":"pagos","status":"ok"}
+{
+    "service": "pagos",
+    "status": "ok"
+}

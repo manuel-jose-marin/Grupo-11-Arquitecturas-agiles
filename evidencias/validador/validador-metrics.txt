@@ -1,69 +1,11 @@
-# HELP python_gc_objects_collected_total Objects collected during gc
-# TYPE python_gc_objects_collected_total counter
-python_gc_objects_collected_total{generation="0"} 607.0
-python_gc_objects_collected_total{generation="1"} 70.0
-python_gc_objects_collected_total{generation="2"} 0.0
-# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
-# TYPE python_gc_objects_uncollectable_total counter
-python_gc_objects_uncollectable_total{generation="0"} 0.0
-python_gc_objects_uncollectable_total{generation="1"} 0.0
-python_gc_objects_uncollectable_total{generation="2"} 0.0
-# HELP python_gc_collections_total Number of times this generation was collected
-# TYPE python_gc_collections_total counter
-python_gc_collections_total{generation="0"} 84.0
-python_gc_collections_total{generation="1"} 7.0
-python_gc_collections_total{generation="2"} 0.0
-# HELP python_info Python platform information
-# TYPE python_info gauge
-python_info{implementation="CPython",major="3",minor="11",patchlevel="14",version="3.11.14"} 1.0
-# HELP process_virtual_memory_bytes Virtual memory size in bytes.
-# TYPE process_virtual_memory_bytes gauge
-process_virtual_memory_bytes 1.98381568e+08
-# HELP process_resident_memory_bytes Resident memory size in bytes.
-# TYPE process_resident_memory_bytes gauge
-process_resident_memory_bytes 3.9542784e+07
-# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
-# TYPE process_start_time_seconds gauge
-process_start_time_seconds 1.77134031489e+09
-# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
-# TYPE process_cpu_seconds_total counter
-process_cpu_seconds_total 0.91
-# HELP process_open_fds Number of open file descriptors.
-# TYPE process_open_fds gauge
-process_open_fds 14.0
-# HELP process_max_fds Maximum number of open file descriptors.
-# TYPE process_max_fds gauge
-process_max_fds 1.048576e+06
-# HELP validator_requests_total Validaciones procesadas
-# TYPE validator_requests_total counter
-validator_requests_total 1.0
-# HELP validator_requests_created Validaciones procesadas
-# TYPE validator_requests_created gauge
-validator_requests_created 1.771340316048729e+09
-# HELP validator_ok_total Validaciones sin divergencia
-# TYPE validator_ok_total counter
-validator_ok_total 0.0
-# HELP validator_ok_created Validaciones sin divergencia
-# TYPE validator_ok_created gauge
-validator_ok_created 1.7713403160487497e+09
-# HELP validator_divergence_total Divergencias detectadas
-# TYPE validator_divergence_total counter
+validator_requests_total 1642.0
+validator_requests_created 1.7715156164385858e+09
+validator_ok_total 1641.0
+validator_ok_created 1.7715156164386191e+09
 validator_divergence_total 1.0
-# HELP validator_divergence_created Divergencias detectadas
-# TYPE validator_divergence_created gauge
-validator_divergence_created 1.7713403160487697e+09
-# HELP validator_heartbeat_total Pong emitidos por validador
-# TYPE validator_heartbeat_total counter
-validator_heartbeat_total 1.0
-# HELP validator_heartbeat_created Pong emitidos por validador
-# TYPE validator_heartbeat_created gauge
-validator_heartbeat_created 1.7713403160487804e+09
-# HELP validator_retired_calculators_total Calculadoras retiradas logicamente por divergencia
-# TYPE validator_retired_calculators_total counter
+validator_divergence_created 1.7715156164386387e+09
+validator_heartbeat_total 33.0
+validator_heartbeat_created 1.7715156164386575e+09
 validator_retired_calculators_total{calculator="calc_c"} 1.0
-# HELP validator_retired_calculators_created Calculadoras retiradas logicamente por divergencia
-# TYPE validator_retired_calculators_created gauge
-validator_retired_calculators_created{calculator="calc_c"} 1.771340317345544e+09
-# HELP validator_active_calculators Cantidad de calculadoras activas
-# TYPE validator_active_calculators gauge
+validator_retired_calculators_created{calculator="calc_c"} 1.7715156576224494e+09
 validator_active_calculators 2.0

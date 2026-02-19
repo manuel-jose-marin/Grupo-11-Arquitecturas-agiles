@@ -1,1 +1,5 @@
-{"correlationId":"a35ac75a-3041-4595-b278-1140143bbc2d","reservationId":"a35ac75a-3041-4595-b278-1140143bbc2d","status":"PENDING_PAYMENT"}
+{
+    "correlationId": "f79a679e-f188-4749-857a-fabb2acf29b3",
+    "reservationId": "f79a679e-f188-4749-857a-fabb2acf29b3",
+    "status": "PENDING_PAYMENT"
+}

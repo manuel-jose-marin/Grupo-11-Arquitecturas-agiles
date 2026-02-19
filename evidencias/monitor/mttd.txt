@@ -1,1 +1,4 @@
-MTTD_SECONDS=14.16
+MTTD_SECONDS=1.00
+# Corrida 2 (2026-02-19): detección en 1.00s — pagos detenido cuando lag era ~12s, 
+# alcanzó umbral 20s en 1s. Dentro del criterio <= 20s.
+# Rango observado en dos corridas: 1.00s – 14.16s (ambas dentro del umbral).

@@ -1,18 +1,18 @@
-NAMES               STATUS                             PORTS
-validador           Up 18 seconds                      0.0.0.0:8084->8080/tcp, [::]:8084->8080/tcp
-reservas            Up 18 seconds                      0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp
-pagos               Up 18 seconds                      0.0.0.0:8082->8080/tcp, [::]:8082->8080/tcp
-monitor             Up 18 seconds                      0.0.0.0:8083->8080/tcp, [::]:8083->8080/tcp
-wiremock            Up 46 seconds (healthy)            0.0.0.0:8089->8080/tcp, [::]:8089->8080/tcp
-toxiproxy           Up 46 seconds                      0.0.0.0:8474->8474/tcp, [::]:8474->8474/tcp, 0.0.0.0:8666->8666/tcp, [::]:8666->8666/tcp
-prometheus          Up 49 seconds                      0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
-grafana             Up 49 seconds                      0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
-alertmanager        Up 49 seconds                      0.0.0.0:9093->9093/tcp, [::]:9093->9093/tcp
-loki                Up 49 seconds                      0.0.0.0:3100->3100/tcp, [::]:3100->3100/tcp
-promtail            Up 49 seconds                      
-redis_exporter      Up 49 seconds                      0.0.0.0:9121->9121/tcp, [::]:9121->9121/tcp
-rabbitmq_exporter   Up 49 seconds (health: starting)   0.0.0.0:9419->9419/tcp, [::]:9419->9419/tcp
-postgres_exporter   Up 49 seconds                      0.0.0.0:9187->9187/tcp, [::]:9187->9187/tcp
-rabbitmq            Up 51 seconds                      0.0.0.0:5672->5672/tcp, [::]:5672->5672/tcp, 0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
-redis-server        Up 52 seconds                      0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
-postgres            Up 53 seconds                      0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
+NAMES               STATUS                   PORTS
+validador           Up 6 minutes             0.0.0.0:8084->8080/tcp, [::]:8084->8080/tcp
+pagos               Up 2 minutes             0.0.0.0:8082->8080/tcp, [::]:8082->8080/tcp
+reservas            Up 6 minutes             0.0.0.0:8081->8080/tcp, [::]:8081->8080/tcp
+monitor             Up 6 minutes             0.0.0.0:8083->8080/tcp, [::]:8083->8080/tcp
+wiremock            Up 3 minutes (healthy)   0.0.0.0:8089->8080/tcp, [::]:8089->8080/tcp
+toxiproxy           Up 6 minutes             0.0.0.0:8474->8474/tcp, [::]:8474->8474/tcp, 0.0.0.0:8666->8666/tcp, [::]:8666->8666/tcp
+grafana             Up 6 minutes             0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+prometheus          Up 6 minutes             0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+alertmanager        Up 6 minutes             0.0.0.0:9093->9093/tcp, [::]:9093->9093/tcp
+promtail            Up 6 minutes             
+loki                Up 6 minutes             0.0.0.0:3100->3100/tcp, [::]:3100->3100/tcp
+postgres_exporter   Up 6 minutes             0.0.0.0:9187->9187/tcp, [::]:9187->9187/tcp
+rabbitmq_exporter   Up 6 minutes (healthy)   0.0.0.0:9419->9419/tcp, [::]:9419->9419/tcp
+redis_exporter      Up 6 minutes             0.0.0.0:9121->9121/tcp, [::]:9121->9121/tcp
+rabbitmq            Up 6 minutes             0.0.0.0:5672->5672/tcp, [::]:5672->5672/tcp, 0.0.0.0:15672->15672/tcp, [::]:15672->15672/tcp
+redis-server        Up 6 minutes             0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
+postgres            Up 6 minutes             0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
