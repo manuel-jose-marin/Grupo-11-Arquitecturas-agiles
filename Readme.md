@@ -225,4 +225,8 @@ docker volume rm observability_prometheus_data observability_grafana_data \
 |---|---|
 | `network santinet not found` | `docker network create santinet` |
 | `port is already allocated` | Cambiar puerto host en `ports:` del compose afectado (ej. `5433→5434`) |
+
 | Exporters DOWN en Prometheus | Verificar que todos estén en `santinet`; revisar hostnames (`postgres`, `redis-server`, `rabbitmq`) en `http://localhost:9090/targets` |
+
+## [Video de corrida](https://vimeo.com/1166528587?share=copy&fl=sv&fe=ci)
+
