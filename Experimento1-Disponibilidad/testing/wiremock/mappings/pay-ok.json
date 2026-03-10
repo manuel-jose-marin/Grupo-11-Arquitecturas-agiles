@@ -1,0 +1,8 @@
+{
+  "request": { "method": "POST", "urlPath": "/pay" },
+  "response": {
+    "status": 200,
+    "jsonBody": { "status": "APPROVED" },
+    "headers": { "Content-Type": "application/json" }
+  }
+}

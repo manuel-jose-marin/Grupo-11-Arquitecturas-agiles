@@ -1,0 +1,4 @@
+{
+  "request": { "method": "POST", "urlPath": "/pay-fail" },
+  "response": { "status": 500, "jsonBody": { "status": "ERROR" } }
+}

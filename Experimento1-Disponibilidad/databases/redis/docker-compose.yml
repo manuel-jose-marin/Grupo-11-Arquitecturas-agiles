@@ -1,0 +1,23 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    hostname: redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    environment:
+      - REDIS_USERNAME=postgres
+      - REDIS_PASSWORD=admin
+    command: ["redis-server", "--requirepass", "admin"]
+    volumes:
+      - redis_data:/data
+
+networks:
+  default:
+    external: true
+    name: santinet
+
+volumes:
+  redis_data:
+    driver: local

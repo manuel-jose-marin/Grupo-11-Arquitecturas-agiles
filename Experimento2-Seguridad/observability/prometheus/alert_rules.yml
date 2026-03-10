@@ -1,0 +1,29 @@
+groups:
+  - name: security_experiment_rules
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"gateway|verifier|reservations|auditlog|rabbitmq_exporter"} == 0
+        for: 20s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Servicio caído: {{ $labels.job }}"
+          description: "Prometheus no pudo hacer scrape por al menos 20 segundos."
+
+      - alert: IntegrityViolationsDetected
+        expr: increase(verifier_integrity_violation_total[1m]) > 0
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Se detectaron solicitudes adulteradas"
+          description: "El verificador detectó al menos una violación de integridad en el último minuto."
+
+      - alert: ReplayDetected
+        expr: increase(verifier_replay_detected_total[1m]) > 0
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Se detectó replay"
+          description: "El verificador detectó al menos un replay en el último minuto."

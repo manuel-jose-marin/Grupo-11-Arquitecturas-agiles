@@ -1,0 +1,65 @@
+services:
+  gateway:
+    build: ./gateway
+    container_name: exp2-gateway
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      VERIFIER_URL: http://verifier:8080/verify
+      RESERVATIONS_QUERY_URL: http://reservations:8080/reservations/by-request
+      REQUEST_TIMEOUT_SECS: "10"
+    ports:
+      - "8080:8080"
+    networks: [travelhubsecnet]
+
+  # Pendiente habilitar
+  #verifier:
+  #  build: ./verifier
+  #  container_name: exp2-verifier
+  #  restart: unless-stopped
+  #  environment:
+  #    PORT: "8080"
+  #    RESERVATIONS_URL: http://reservations:8080/reservations
+  #    REQUEST_TIMEOUT_SECS: "10"
+  #    RESERVATION_HMAC_SECRET: super-secret-exp2-key
+  #    NONCE_TTL_SECONDS: "120"
+  #    ALLOWED_CLOCK_SKEW_SECONDS: "120"
+  #    MONGO_URI: mongodb://admin:admin@mongodb:27017/experiment2?authSource=admin
+  #    RABBIT_HOST: rabbitmq
+  #    RABBIT_USER: guest
+  #    RABBIT_PASS: guest
+  #  networks: [travelhubsecnet]
+
+  reservations:
+    build: ./reservations
+    container_name: exp2-reservations
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      SQLITE_PATH: /data/reservations.db
+    volumes:
+      - reservations_data:/data
+    networks: [travelhubsecnet]
+  # Pendiente habilitar
+  #auditlog:
+  #  build: ./audit-log
+  #  container_name: exp2-auditlog
+  #  restart: unless-stopped
+  #  environment:
+  #    PORT: "8080"
+  #    MONGO_URI: mongodb://admin:admin@mongodb:27017/experiment2?authSource=admin
+  #    RABBIT_HOST: rabbitmq
+  #    RABBIT_USER: guest
+  #    RABBIT_PASS: guest
+  #  ports:
+  #    - "8084:8080"
+  #  networks: [travelhubsecnet]
+
+volumes:
+  reservations_data:
+    driver: local
+
+networks:
+  travelhubsecnet:
+    external: true
+    name: travelhubsecnet

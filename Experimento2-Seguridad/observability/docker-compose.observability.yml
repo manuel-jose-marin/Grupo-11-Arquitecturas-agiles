@@ -1,0 +1,90 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: exp2-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - "9090:9090"
+    networks: [travelhubsecnet]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: exp2-alertmanager
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    ports:
+      - "9093:9093"
+    networks: [travelhubsecnet]
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: exp2-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "3000:3000"
+    networks: [travelhubsecnet]
+
+  rabbitmq_exporter:
+    image: kbudde/rabbitmq-exporter:1.0.0
+    container_name: exp2-rabbitmq-exporter
+    restart: unless-stopped
+    environment:
+      RABBIT_URL: "http://rabbitmq:15672"
+      RABBIT_USER: "guest"
+      RABBIT_PASSWORD: "guest"
+      PUBLISH_PORT: "9419"
+    ports:
+      - "9419:9419"
+    networks: [travelhubsecnet]
+
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: exp2-loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/config.yml"]
+    volumes:
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks: [travelhubsecnet]
+
+  promtail:
+    image: grafana/promtail:2.9.8
+    container_name: exp2-promtail
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/config.yml"]
+    volumes:
+      - ./promtail/config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [travelhubsecnet]
+
+volumes:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:
+  loki_data:
+
+networks:
+  travelhubsecnet:
+    external: true
+    name: travelhubsecnet
