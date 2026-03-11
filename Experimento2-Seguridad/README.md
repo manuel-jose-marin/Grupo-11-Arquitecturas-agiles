@@ -30,17 +30,16 @@ Demostrar que una solicitud de reserva:
    - ventana temporal (`timestamp` + TTL)
 4. Solo si todo es correcto, `Verifier` reenvía a `Reservations`
 5. `Reservations` persiste la reserva en SQLite
-6. `Verifier` publica eventos de auditoría en RabbitMQ
-7. `Audit Log` consume esos eventos y los guarda en MongoDB
+6. `Verifier` registra la evidencia de seguridad en `Audit Log`
+7. `Audit Log` persiste los eventos en MongoDB
 
 ### Componentes desplegados
 
 - **Gateway/BFF**: Flask
-- **Verifier de Integridad y Anti-Replay**: Flask + MongoDB + RabbitMQ
+- **Verifier de Integridad y Anti-Replay**: Flask + validación HMAC + nonces en memoria
 - **Reservations**: Flask + SQLite
-- **Audit Log**: Flask + RabbitMQ + MongoDB
-- **MongoDB**: almacenamiento flexible para evidencia de auditoría y nonces TTL
-- **RabbitMQ**: desacoplamiento del flujo de auditoría
+- **Audit Log**: Flask + MongoDB
+- **MongoDB**: almacenamiento flexible para evidencia de auditoría
 - **Prometheus + Grafana + Alertmanager + Loki + Promtail**: métricas, alertas y logs
 
 ---
@@ -48,7 +47,6 @@ Demostrar que una solicitud de reserva:
 ## Credenciales de laboratorio
 
 - **MongoDB**: `admin/admin`
-- **RabbitMQ**: `guest/guest`
 - **Grafana**: `admin/admin`
 - **Llave HMAC del experimento**: `super-secret-exp2-key`
 
@@ -88,8 +86,6 @@ docker compose version
 ├── databases/
 │   └── mongodb/
 │       └── docker-compose.yml
-├── rabbit/
-│   └── docker-compose.yml
 ├── observability/
 │   ├── docker-compose.observability.yml
 │   ├── alertmanager/alertmanager.yml
@@ -172,7 +168,6 @@ Ejecuta desde la raíz del proyecto:
 docker network create travelhubsecnet 2>/dev/null || true
 
 docker compose -f databases/mongodb/docker-compose.yml up -d
-docker compose -f rabbit/docker-compose.yml up -d
 docker compose -f observability/docker-compose.observability.yml up -d
 docker compose -f services/docker-compose.services.yml up -d --build
 ```
@@ -195,21 +190,7 @@ Acceso local:
 - Usuario: `admin`
 - Password: `admin`
 
-### 2. RabbitMQ
-
-```bash
-cd ../../rabbit
-docker compose up -d
-```
-
-Acceso local:
-
-- AMQP: `localhost:5672`
-- UI: `http://localhost:15672`
-- Usuario: `guest`
-- Password: `guest`
-
-### 3. Observabilidad
+### 2. Observabilidad
 
 ```bash
 cd ../observability
@@ -223,7 +204,7 @@ Servicios:
 - Grafana: `http://localhost:3000`
 - Loki: `http://localhost:3100`
 
-### 4. Microservicios del experimento
+### 3. Microservicios del experimento
 
 ```bash
 cd ../services
@@ -261,7 +242,7 @@ curl http://localhost:9090/targets
 - valida `nonce`
 - valida `timestamp`
 - corta el flujo si detecta tampering o replay
-- publica eventos de auditoría en RabbitMQ
+- registra evidencia en `Audit Log`
 
 ### Reservations
 
@@ -271,7 +252,7 @@ curl http://localhost:9090/targets
 
 ### Audit Log
 
-- consume eventos desde RabbitMQ
+- recibe eventos desde `Verifier`
 - guarda evidencia en MongoDB
 - expone consulta REST de logs
 
@@ -377,7 +358,6 @@ docker logs -f exp2-gateway
 docker logs -f exp2-verifier
 docker logs -f exp2-reservations
 docker logs -f exp2-auditlog
-docker logs -f exp2-rabbitmq
 docker logs -f exp2-prometheus
 ```
 
@@ -386,7 +366,6 @@ docker logs -f exp2-prometheus
 ```bash
 docker compose -f services/docker-compose.services.yml down
 docker compose -f observability/docker-compose.observability.yml down
-docker compose -f rabbit/docker-compose.yml down
 docker compose -f databases/mongodb/docker-compose.yml down
 ```
 
@@ -432,7 +411,6 @@ Y verifica que los nombres DNS internos sean correctos:
 - `verifier`
 - `reservations`
 - `auditlog`
-- `rabbitmq`
 - `mongodb`
 
 ### WSL no detecta Docker

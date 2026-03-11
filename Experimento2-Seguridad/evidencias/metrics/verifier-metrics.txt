@@ -1,0 +1,17 @@
+# HELP verifier_requests_total Solicitudes procesadas por el verificador
+# TYPE verifier_requests_total counter
+verifier_requests_total{outcome="accepted"} 43.0
+verifier_requests_total{outcome="integrity_violation"} 22.0
+verifier_requests_total{outcome="replay_detected"} 21.0
+# HELP verifier_integrity_violation_total Violaciones de integridad detectadas
+# TYPE verifier_integrity_violation_total counter
+verifier_integrity_violation_total{reason="quote_hash_mismatch"} 22.0
+# HELP verifier_replay_detected_total Replays detectados
+# TYPE verifier_replay_detected_total counter
+verifier_replay_detected_total{reason="nonce_reused"} 21.0
+# HELP verifier_forwarded_total Solicitudes enviadas a reservations
+# TYPE verifier_forwarded_total counter
+verifier_forwarded_total{outcome="201"} 43.0
+# HELP verifier_active_nonces Nonces activos en memoria dentro de la ventana TTL
+# TYPE verifier_active_nonces gauge
+verifier_active_nonces 40.0

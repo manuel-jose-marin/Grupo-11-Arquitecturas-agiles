@@ -33,7 +33,7 @@
 }
 ```
 
-## Campos críticos protegidos --- REVISAR
+## Campos críticos protegidos
 
 - `hotelId`
 - `roomType`
@@ -45,7 +45,7 @@
 - `cancellationPolicyId`
 - `quoteId`
 
-## Canonicalización usada en el experimento  --- REVISAR
+## Canonicalización usada en el experimento
 
 ### 1. `quoteHash`
 
@@ -70,3 +70,12 @@ requestId|nonce|timestamp|userId|role|hotelId|roomType|checkIn|checkOut|guests|c
 - Si `nonce` ya fue usado dentro de la ventana TTL → `REPLAY_DETECTED`
 - Si `timestamp` está fuera de la ventana permitida → rechazo
 - Solo si todo es válido, la petición continúa hacia `reservations`
+
+## Valores operativos del experimento
+
+- Ventana TTL para `nonce`: `120` segundos
+- Desfase máximo permitido del reloj (`timestamp`): `120` segundos
+- Respuesta esperada:
+  - solicitud válida: `201`
+  - tampering: `422`
+  - replay: `409`

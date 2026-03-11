@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "runs_per_scenario": 20,
+    "gateway": "http://localhost:8080/api/v1/reservations",
+    "auditlog": "http://localhost:8084/logs",
+    "executedAt": "2026-03-10T23:04:59Z"
+  },
+  "summary": {
+    "valid": {
+      "total": 20,
+      "accepted_201": 20,
+      "reservation_query_200": 20,
+      "audit_records_present": 20,
+      "acceptance_rate": 100.0,
+      "false_positive_rate": 0.0,
+      "sampleRequestId": "65d0e501-d232-427a-bb06-3d8ad9ef2668"
+    },
+    "tampering": {
+      "total": 20,
+      "detected_422": 20,
+      "not_processed_404": 20,
+      "audit_records_present": 20,
+      "detection_rate": 100.0,
+      "sampleRequestId": "dc8e08df-00b0-4aae-9c16-24c599a84489"
+    },
+    "replay": {
+      "total": 20,
+      "first_accepted_201": 20,
+      "second_rejected_409": 20,
+      "single_reservation_query_200": 20,
+      "audit_records_two_events": 20,
+      "first_acceptance_rate": 100.0,
+      "detection_rate": 100.0,
+      "sampleRequestId": "89d6293c-4e21-4eb9-b8bb-77b1d99ea0f6"
+    }
+  }
+}

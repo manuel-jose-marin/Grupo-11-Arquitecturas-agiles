@@ -1,0 +1,35 @@
+{
+  "count": 2,
+  "events": [
+    {
+      "actor": {
+        "role": "traveler",
+        "userId": "user-001"
+      },
+      "eventType": "REQUEST_ACCEPTED",
+      "ip": "192.168.65.1",
+      "nonce": "6e0ecdc8-7499-474a-a9b2-667e1afc3f69",
+      "payloadHash": "3f4215582718d3d0ae5a1620708a46c6c047f1a46fbb1670742e59aef8832450",
+      "quoteId": "QUOTE-2026-0001",
+      "reason": "verified_and_forwarded",
+      "requestId": "89d6293c-4e21-4eb9-b8bb-77b1d99ea0f6",
+      "requestTimestamp": "2026-03-10T23:04:43.539462+00:00",
+      "timestamp": "2026-03-10T23:04:43.545892+00:00"
+    },
+    {
+      "actor": {
+        "role": "traveler",
+        "userId": "user-001"
+      },
+      "eventType": "REPLAY_DETECTED",
+      "ip": "192.168.65.1",
+      "nonce": "6e0ecdc8-7499-474a-a9b2-667e1afc3f69",
+      "payloadHash": "3f4215582718d3d0ae5a1620708a46c6c047f1a46fbb1670742e59aef8832450",
+      "quoteId": "QUOTE-2026-0001",
+      "reason": "nonce_reused",
+      "requestId": "89d6293c-4e21-4eb9-b8bb-77b1d99ea0f6",
+      "requestTimestamp": "2026-03-10T23:04:43.539462+00:00",
+      "timestamp": "2026-03-10T23:04:43.559269+00:00"
+    }
+  ]
+}
