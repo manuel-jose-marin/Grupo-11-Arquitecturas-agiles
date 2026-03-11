@@ -2,7 +2,7 @@ groups:
   - name: security_experiment_rules
     rules:
       - alert: ServiceDown
-        expr: up{job=~"gateway|verifier|reservations|auditlog|rabbitmq_exporter"} == 0
+        expr: up{job=~"gateway|verifier|reservations|auditlog"} == 0
         for: 20s
         labels:
           severity: critical

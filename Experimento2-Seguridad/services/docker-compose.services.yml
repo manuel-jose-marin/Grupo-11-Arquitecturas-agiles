@@ -12,23 +12,19 @@ services:
       - "8080:8080"
     networks: [travelhubsecnet]
 
-  # Pendiente habilitar
-  #verifier:
-  #  build: ./verifier
-  #  container_name: exp2-verifier
-  #  restart: unless-stopped
-  #  environment:
-  #    PORT: "8080"
-  #    RESERVATIONS_URL: http://reservations:8080/reservations
-  #    REQUEST_TIMEOUT_SECS: "10"
-  #    RESERVATION_HMAC_SECRET: super-secret-exp2-key
-  #    NONCE_TTL_SECONDS: "120"
-  #    ALLOWED_CLOCK_SKEW_SECONDS: "120"
-  #    MONGO_URI: mongodb://admin:admin@mongodb:27017/experiment2?authSource=admin
-  #    RABBIT_HOST: rabbitmq
-  #    RABBIT_USER: guest
-  #    RABBIT_PASS: guest
-  #  networks: [travelhubsecnet]
+  verifier:
+    build: ./verifier
+    container_name: exp2-verifier
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      RESERVATIONS_URL: http://reservations:8080/reservations
+      AUDIT_LOG_URL: http://auditlog:8080/events
+      REQUEST_TIMEOUT_SECS: "10"
+      RESERVATION_HMAC_SECRET: super-secret-exp2-key
+      NONCE_TTL_SECONDS: "120"
+      ALLOWED_CLOCK_SKEW_SECONDS: "120"
+    networks: [travelhubsecnet]
 
   reservations:
     build: ./reservations
@@ -40,20 +36,19 @@ services:
     volumes:
       - reservations_data:/data
     networks: [travelhubsecnet]
-  # Pendiente habilitar
-  #auditlog:
-  #  build: ./audit-log
-  #  container_name: exp2-auditlog
-  #  restart: unless-stopped
-  #  environment:
-  #    PORT: "8080"
-  #    MONGO_URI: mongodb://admin:admin@mongodb:27017/experiment2?authSource=admin
-  #    RABBIT_HOST: rabbitmq
-  #    RABBIT_USER: guest
-  #    RABBIT_PASS: guest
-  #  ports:
-  #    - "8084:8080"
-  #  networks: [travelhubsecnet]
+
+  auditlog:
+    build: ./audit-log
+    container_name: exp2-auditlog
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      MONGO_URI: mongodb://admin:admin@mongodb:27017/experiment2?authSource=admin
+      DB_NAME: experiment2
+      COLLECTION_NAME: audit_events
+    ports:
+      - "8084:8080"
+    networks: [travelhubsecnet]
 
 volumes:
   reservations_data:

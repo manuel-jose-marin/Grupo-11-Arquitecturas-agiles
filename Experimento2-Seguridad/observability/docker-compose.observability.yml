@@ -42,19 +42,6 @@ services:
       - "3000:3000"
     networks: [travelhubsecnet]
 
-  rabbitmq_exporter:
-    image: kbudde/rabbitmq-exporter:1.0.0
-    container_name: exp2-rabbitmq-exporter
-    restart: unless-stopped
-    environment:
-      RABBIT_URL: "http://rabbitmq:15672"
-      RABBIT_USER: "guest"
-      RABBIT_PASSWORD: "guest"
-      PUBLISH_PORT: "9419"
-    ports:
-      - "9419:9419"
-    networks: [travelhubsecnet]
-
   loki:
     image: grafana/loki:2.9.8
     container_name: exp2-loki
