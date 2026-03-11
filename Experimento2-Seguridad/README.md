@@ -169,6 +169,10 @@ Resumen de campos relevantes:
 Ejecuta desde la raíz del proyecto:
 
 ```bash
+cd Experimento2-Seguridad/
+```
+
+```bash
 docker network create travelhubsecnet 2>/dev/null || true
 
 docker compose -f databases/mongodb/docker-compose.yml up -d
@@ -184,8 +188,7 @@ docker compose -f services/docker-compose.services.yml up -d --build
 ### 1. MongoDB
 
 ```bash
-cd databases/mongodb
-docker compose up -d
+docker compose -f databases/mongodb/docker-compose.yml up -d
 ```
 
 Acceso local:
@@ -198,8 +201,7 @@ Acceso local:
 ### 2. RabbitMQ
 
 ```bash
-cd ../../rabbit
-docker compose up -d
+docker compose -f rabbit/docker-compose.yml up -d
 ```
 
 Acceso local:
@@ -212,8 +214,7 @@ Acceso local:
 ### 3. Observabilidad
 
 ```bash
-cd ../observability
-docker compose -f docker-compose.observability.yml up -d
+docker compose -f observability/docker-compose.observability.yml up -d
 ```
 
 Servicios:
@@ -226,8 +227,7 @@ Servicios:
 ### 4. Microservicios del experimento
 
 ```bash
-cd ../services
-docker compose -f docker-compose.services.yml up -d --build
+docker compose -f services/docker-compose.services.yml up -d --build
 ```
 
 Servicios expuestos al host:
@@ -279,7 +279,11 @@ curl http://localhost:9090/targets
 
 ## Ejecución del experimento
 
-Ejecuta los scripts desde la raíz del proyecto.
+Ejecuta los scripts desde del proyecto.
+
+```bash
+cd Experimento2-Seguridad/
+```
 
 ### Escenario 1: solicitud válida
 
