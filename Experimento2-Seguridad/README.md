@@ -30,16 +30,17 @@ Demostrar que una solicitud de reserva:
    - ventana temporal (`timestamp` + TTL)
 4. Solo si todo es correcto, `Verifier` reenvía a `Reservations`
 5. `Reservations` persiste la reserva en SQLite
-6. `Verifier` registra la evidencia de seguridad en `Audit Log`
-7. `Audit Log` persiste los eventos en MongoDB
+6. `Verifier` publica eventos de auditoría en RabbitMQ
+7. `Audit Log` consume esos eventos y los guarda en MongoDB
 
 ### Componentes desplegados
 
 - **Gateway/BFF**: Flask
-- **Verifier de Integridad y Anti-Replay**: Flask + validación HMAC + nonces en memoria
+- **Verifier de Integridad y Anti-Replay**: Flask + MongoDB + RabbitMQ
 - **Reservations**: Flask + SQLite
-- **Audit Log**: Flask + MongoDB
-- **MongoDB**: almacenamiento flexible para evidencia de auditoría
+- **Audit Log**: Flask + RabbitMQ + MongoDB
+- **MongoDB**: almacenamiento flexible para evidencia de auditoría y nonces TTL
+- **RabbitMQ**: desacoplamiento del flujo de auditoría
 - **Prometheus + Grafana + Alertmanager + Loki + Promtail**: métricas, alertas y logs
 
 ---
@@ -47,6 +48,7 @@ Demostrar que una solicitud de reserva:
 ## Credenciales de laboratorio
 
 - **MongoDB**: `admin/admin`
+- **RabbitMQ**: `guest/guest`
 - **Grafana**: `admin/admin`
 - **Llave HMAC del experimento**: `super-secret-exp2-key`
 
@@ -86,6 +88,8 @@ docker compose version
 ├── databases/
 │   └── mongodb/
 │       └── docker-compose.yml
+├── rabbit/
+│   └── docker-compose.yml
 ├── observability/
 │   ├── docker-compose.observability.yml
 │   ├── alertmanager/alertmanager.yml
@@ -165,9 +169,14 @@ Resumen de campos relevantes:
 Ejecuta desde la raíz del proyecto:
 
 ```bash
+cd Experimento2-Seguridad/
+```
+
+```bash
 docker network create travelhubsecnet 2>/dev/null || true
 
 docker compose -f databases/mongodb/docker-compose.yml up -d
+docker compose -f rabbit/docker-compose.yml up -d
 docker compose -f observability/docker-compose.observability.yml up -d
 docker compose -f services/docker-compose.services.yml up -d --build
 ```
@@ -179,8 +188,7 @@ docker compose -f services/docker-compose.services.yml up -d --build
 ### 1. MongoDB
 
 ```bash
-cd databases/mongodb
-docker compose up -d
+docker compose -f databases/mongodb/docker-compose.yml up -d
 ```
 
 Acceso local:
@@ -190,11 +198,23 @@ Acceso local:
 - Usuario: `admin`
 - Password: `admin`
 
-### 2. Observabilidad
+### 2. RabbitMQ
 
 ```bash
-cd ../observability
-docker compose -f docker-compose.observability.yml up -d
+docker compose -f rabbit/docker-compose.yml up -d
+```
+
+Acceso local:
+
+- AMQP: `localhost:5672`
+- UI: `http://localhost:15672`
+- Usuario: `guest`
+- Password: `guest`
+
+### 3. Observabilidad
+
+```bash
+docker compose -f observability/docker-compose.observability.yml up -d
 ```
 
 Servicios:
@@ -204,11 +224,10 @@ Servicios:
 - Grafana: `http://localhost:3000`
 - Loki: `http://localhost:3100`
 
-### 3. Microservicios del experimento
+### 4. Microservicios del experimento
 
 ```bash
-cd ../services
-docker compose -f docker-compose.services.yml up -d --build
+docker compose -f services/docker-compose.services.yml up -d --build
 ```
 
 Servicios expuestos al host:
@@ -242,7 +261,7 @@ curl http://localhost:9090/targets
 - valida `nonce`
 - valida `timestamp`
 - corta el flujo si detecta tampering o replay
-- registra evidencia en `Audit Log`
+- publica eventos de auditoría en RabbitMQ
 
 ### Reservations
 
@@ -252,7 +271,7 @@ curl http://localhost:9090/targets
 
 ### Audit Log
 
-- recibe eventos desde `Verifier`
+- consume eventos desde RabbitMQ
 - guarda evidencia en MongoDB
 - expone consulta REST de logs
 
@@ -260,7 +279,11 @@ curl http://localhost:9090/targets
 
 ## Ejecución del experimento
 
-Ejecuta los scripts desde la raíz del proyecto.
+Ejecuta los scripts desde del proyecto.
+
+```bash
+cd Experimento2-Seguridad/
+```
 
 ### Escenario 1: solicitud válida
 
@@ -358,6 +381,7 @@ docker logs -f exp2-gateway
 docker logs -f exp2-verifier
 docker logs -f exp2-reservations
 docker logs -f exp2-auditlog
+docker logs -f exp2-rabbitmq
 docker logs -f exp2-prometheus
 ```
 
@@ -366,6 +390,7 @@ docker logs -f exp2-prometheus
 ```bash
 docker compose -f services/docker-compose.services.yml down
 docker compose -f observability/docker-compose.observability.yml down
+docker compose -f rabbit/docker-compose.yml down
 docker compose -f databases/mongodb/docker-compose.yml down
 ```
 
@@ -411,6 +436,7 @@ Y verifica que los nombres DNS internos sean correctos:
 - `verifier`
 - `reservations`
 - `auditlog`
+- `rabbitmq`
 - `mongodb`
 
 ### WSL no detecta Docker

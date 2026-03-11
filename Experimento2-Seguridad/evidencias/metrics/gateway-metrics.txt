@@ -1,7 +1,0 @@
-# HELP gateway_requests_total Solicitudes recibidas por gateway
-# TYPE gateway_requests_total counter
-gateway_requests_total{outcome="201",route="create_reservation"} 43.0
-gateway_requests_total{outcome="200",route="query_reservation"} 43.0
-gateway_requests_total{outcome="422",route="create_reservation"} 22.0
-gateway_requests_total{outcome="404",route="query_reservation"} 22.0
-gateway_requests_total{outcome="409",route="create_reservation"} 21.0

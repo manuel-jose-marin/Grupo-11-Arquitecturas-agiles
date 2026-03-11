@@ -1,8 +1,0 @@
-{
-  "requestId": "dc8e08df-00b0-4aae-9c16-24c599a84489",
-  "gatewayStatus": 404,
-  "body": {
-    "error": "reservation_not_found",
-    "requestId": "dc8e08df-00b0-4aae-9c16-24c599a84489"
-  }
-}
