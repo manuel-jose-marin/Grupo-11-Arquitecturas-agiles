@@ -61,8 +61,13 @@ docker network create travelhubsecnet 2>/dev/null || true
 ## Quickstart
 
 ```bash
+cd Experimento2-Seguridad/
+```
+
+```bash
 docker network create travelhubsecnet 2>/dev/null || true
 docker compose -f databases/mongodb/docker-compose.yml up -d
+docker compose -f rabbit/docker-compose.yml up -d
 docker compose -f observability/docker-compose.observability.yml up -d
 docker compose -f services/docker-compose.services.yml up -d --build
 ```
@@ -129,7 +134,11 @@ Gateway `:8080` · Audit Log `:8084`
 
 ## Corrida del experimento
 
-Ejecuta los scripts desde la raíz del proyecto.
+Ejecuta los scripts desde del proyecto.
+
+```bash
+cd Experimento2-Seguridad/
+```
 
 ### 1) Solicitud válida
 
@@ -219,11 +228,13 @@ docker logs -f exp2-gateway
 docker logs -f exp2-verifier
 docker logs -f exp2-reservations
 docker logs -f exp2-auditlog
+docker logs -f exp2-rabbitmq
 docker logs -f exp2-prometheus
 
 # Apagar todo
 docker compose -f services/docker-compose.services.yml down
 docker compose -f observability/docker-compose.observability.yml down
+docker compose -f rabbit/docker-compose.yml down
 docker compose -f databases/mongodb/docker-compose.yml down
 
 # Borrar volúmenes (destructivo)
