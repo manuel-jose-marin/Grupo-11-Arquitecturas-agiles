@@ -1,0 +1,8 @@
+# HELP reservations_created_total Reservas creadas correctamente
+# TYPE reservations_created_total counter
+reservations_created_total 43.0
+# HELP reservations_rejected_total Solicitudes rechazadas por reservas
+# TYPE reservations_rejected_total counter
+# HELP last_reservation_created_unix_seconds Momento de creación de la última reserva
+# TYPE last_reservation_created_unix_seconds gauge
+last_reservation_created_unix_seconds 1.773183884576233e+09

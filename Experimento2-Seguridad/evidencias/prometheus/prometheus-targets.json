@@ -1,0 +1,43 @@
+{
+  "status": "success",
+  "data": {
+    "activeTargets": [
+      {
+        "labels": {
+          "instance": "gateway:8080",
+          "job": "gateway"
+        },
+        "health": "up",
+        "scrapeUrl": "http://gateway:8080/metrics",
+        "lastError": ""
+      },
+      {
+        "labels": {
+          "instance": "verifier:8080",
+          "job": "verifier"
+        },
+        "health": "up",
+        "scrapeUrl": "http://verifier:8080/metrics",
+        "lastError": ""
+      },
+      {
+        "labels": {
+          "instance": "reservations:8080",
+          "job": "reservations"
+        },
+        "health": "up",
+        "scrapeUrl": "http://reservations:8080/metrics",
+        "lastError": ""
+      },
+      {
+        "labels": {
+          "instance": "auditlog:8080",
+          "job": "auditlog"
+        },
+        "health": "up",
+        "scrapeUrl": "http://auditlog:8080/metrics",
+        "lastError": ""
+      }
+    ]
+  }
+}

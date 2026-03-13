@@ -1,0 +1,20 @@
+{
+  "count": 1,
+  "events": [
+    {
+      "actor": {
+        "role": "traveler",
+        "userId": "user-001"
+      },
+      "eventType": "REQUEST_ACCEPTED",
+      "ip": "192.168.65.1",
+      "nonce": "483a4453-a4b7-4b1d-a294-e045699eaee5",
+      "payloadHash": "3f4215582718d3d0ae5a1620708a46c6c047f1a46fbb1670742e59aef8832450",
+      "quoteId": "QUOTE-2026-0001",
+      "reason": "verified_and_forwarded",
+      "requestId": "65d0e501-d232-427a-bb06-3d8ad9ef2668",
+      "requestTimestamp": "2026-03-10T23:04:41.858427+00:00",
+      "timestamp": "2026-03-10T23:04:41.968986+00:00"
+    }
+  ]
+}
