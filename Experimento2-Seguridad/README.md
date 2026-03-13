@@ -233,7 +233,7 @@ docker volume rm observability_prometheus_data observability_grafana_data \
   observability_alertmanager_data observability_loki_data 2>/dev/null || true
 ```
 
----
+----
 
 ## Troubleshooting
 
