@@ -40,10 +40,6 @@
 - `evidencias/auditlog/valid-request-logs.json`
 - `evidencias/auditlog/tampering-logs.json`
 - `evidencias/auditlog/replay-logs.json`
-- `evidencias/logs/gateway.log`
-- `evidencias/logs/verifier.log`
-- `evidencias/logs/reservations.log`
-- `evidencias/logs/auditlog.log`
 
 ## Notas sobre interpretación
 

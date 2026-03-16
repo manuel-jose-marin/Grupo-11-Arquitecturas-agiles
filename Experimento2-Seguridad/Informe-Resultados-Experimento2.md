@@ -212,7 +212,7 @@ La hipotesis de diseño se **confirma** en esta iteracion:
 
 ## 6. Conclusion sobre la hipotesis
 
-## Veredicto
+### Veredicto
 
 **La hipotesis de diseño se confirma en esta iteracion del experimento.**
 
@@ -289,11 +289,10 @@ Aunque los resultados fueron favorables para el alcance definido, del analisis r
 - `evidencias/auditlog/replay-logs.json`: secuencia `REQUEST_ACCEPTED` + `REPLAY_DETECTED`.
 - `evidencias/prometheus/prometheus-targets.json`: verificacion de observabilidad.
 - `evidencias/metrics/*.txt`: metricas expuestas por los servicios.
-- `evidencias/logs/*.log`: logs representativos del comportamiento observado.
 
 ---
 
-### 10. Evidencias ya recolectadas en el proyecto
+## 10. Evidencias ya recolectadas en el proyecto
 
 Evidencias disponibles en esta version:
 
@@ -316,10 +315,6 @@ Evidencias disponibles en esta version:
 - `evidencias/auditlog/valid-request-logs.json`
 - `evidencias/auditlog/tampering-logs.json`
 - `evidencias/auditlog/replay-logs.json`
-- `evidencias/logs/gateway.log`
-- `evidencias/logs/verifier.log`
-- `evidencias/logs/reservations.log`
-- `evidencias/logs/auditlog.log`
 
 ---
 

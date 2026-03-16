@@ -42,7 +42,6 @@ Infraestructura local para validar integridad en tránsito en el flujo `cliente 
 │   ├── send_valid_request.py
 │   ├── send_tampered_request.py
 │   └── send_replay_request.py
-├── docs/reservation-contract.md
 ├── evidencias/
 ├── Informe-Resultados-Experimento2.md
 └── README.md
@@ -67,7 +66,6 @@ cd Experimento2-Seguridad/
 ```bash
 docker network create travelhubsecnet 2>/dev/null || true
 docker compose -f databases/mongodb/docker-compose.yml up -d
-docker compose -f rabbit/docker-compose.yml up -d
 docker compose -f observability/docker-compose.observability.yml up -d
 docker compose -f services/docker-compose.services.yml up -d --build
 ```
@@ -228,13 +226,11 @@ docker logs -f exp2-gateway
 docker logs -f exp2-verifier
 docker logs -f exp2-reservations
 docker logs -f exp2-auditlog
-docker logs -f exp2-rabbitmq
 docker logs -f exp2-prometheus
 
 # Apagar todo
 docker compose -f services/docker-compose.services.yml down
 docker compose -f observability/docker-compose.observability.yml down
-docker compose -f rabbit/docker-compose.yml down
 docker compose -f databases/mongodb/docker-compose.yml down
 
 # Borrar volúmenes (destructivo)
